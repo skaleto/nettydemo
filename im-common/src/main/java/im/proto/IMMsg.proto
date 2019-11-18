@@ -1,0 +1,86 @@
+syntax = "proto3";
+package im.proto;
+
+option java_package = "im.proto";
+option java_outer_classname = "IMMsg";
+
+message ProtoMsg {
+    uint32 id = 1;
+    string content = 2;
+
+    enum MsgType {
+        //登入登出消息
+        LOGIN_REQUEST = 0;
+        LOGIN_RESPONSE = 1;
+        LOGOUT_REQUEST = 2;
+        LOGOUT_RESPONSE = 3;
+        //心跳检测消息
+        KEEPALIVE_REQUEST = 4;
+        KEEPALIVE_RESPONSE = 5;
+        //聊天消息
+        MESSAGE_REQUEST = 6;
+        MESSAGE_RESPONSE = 7;
+        //服务器消息
+        SERVER_NOTIFICATION = 8;
+    }
+
+    message LoginRequest {
+        string uid = 1;
+        string deviceId = 2;
+        string token = 3;
+        string platform = 4;
+        string appVersion = 5;
+    }
+
+    message LoginResponse {
+        bool result = 1;
+        uint32 code = 2;
+        string desc = 3;
+    }
+
+    message LogoutRequest {
+        string uid = 1;
+        string sessionId = 2;
+    }
+
+    message LogoutResponse {
+        bool result = 1;
+        uint32 code = 2;
+        string desc = 3;
+    }
+
+    message MessageRequest {
+        uint64 msgId = 1;
+        string fromClient = 2;
+        string toClient = 3;
+        string content = 4;
+    }
+
+    message MessageResponse {
+        bool result = 1;
+        uint32 code = 2;
+        string desc = 3;
+        bool isLastBlock = 4;
+        uint32 blockIndex = 5;
+    }
+
+    message Notification {
+        string msg = 1;
+    }
+
+    //外层结构体
+    message Message {
+        MsgType type = 1;
+        string sessionId = 2;
+        uint64 sequence = 3;
+        LoginRequest loginRequest = 4;
+        LoginResponse loginResponse = 5;
+        LogoutRequest logoutRequest = 6;
+        LogoutResponse logoutResponse = 7;
+        MessageRequest messageRequest = 8;
+        MessageResponse messageResponse = 9;
+        Notification notification = 10;
+    }
+
+
+}

@@ -1,0 +1,6 @@
+# Project exclude paths
+/im-client/target/
+/im-common/target/
+/target/
+.idea
+*.iml
