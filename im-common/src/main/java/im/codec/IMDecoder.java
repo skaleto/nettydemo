@@ -1,23 +1,21 @@
-package im.client.codec;
+package im.codec;
 
+import im.Constants;
 import im.proto.IMMsg;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * 解码器（ByteToMessageDecoder本身也是一种ChannelInboundHandlerAdapter）
- */
 @Service
-public class IMDecoder extends ByteToMessageDecoder{
+public class IMDecoder extends ByteToMessageDecoder {
 
-    private static final short MAGIC = 12306;
-    private static final short PROTOCOL_VER = 1;
 
+    /**
+     * 协议按照 |2字节魔数|2字节协议版本|4字节数据长度|实际数据
+     */
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         //标记当前指针位置，便于出现问题后快速恢复
@@ -28,11 +26,11 @@ public class IMDecoder extends ByteToMessageDecoder{
             return;
         }
         //读取并校验魔数
-        if (in.readShort() != MAGIC) {
+        if (in.readShort() != Constants.MAGIC) {
             throw new Exception("MAGIC ERROR");
         }
         //读取并校验协议版本
-        if (in.readShort() != PROTOCOL_VER) {
+        if (in.readShort() != Constants.PROTOCOL_VER) {
             throw new Exception("PROTOCOL VERSION ERROR");
         }
         //读取数据长度
@@ -63,5 +61,6 @@ public class IMDecoder extends ByteToMessageDecoder{
         if (msg != null) {
             out.add(msg);
         }
+
     }
 }

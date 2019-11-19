@@ -1,11 +1,11 @@
 package im.client.nettyclient;
 
-import im.client.codec.IMDecoder;
-import im.client.codec.IMEncoder;
+
 import im.client.inboundhandler.ChatMsgHandler;
 import im.client.inboundhandler.LoginResponseHandler;
+import im.codec.IMDecoder;
+import im.codec.IMEncoder;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
