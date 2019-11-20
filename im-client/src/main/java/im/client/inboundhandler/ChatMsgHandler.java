@@ -1,9 +1,11 @@
 package im.client.inboundhandler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.springframework.stereotype.Service;
 
+@ChannelHandler.Sharable
 @Service
 public class ChatMsgHandler extends ChannelInboundHandlerAdapter {
 

@@ -1,16 +1,20 @@
-package im.client.inboundhandler;
+package im.server.handler;
 
-import im.proto.IMMsg;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import sun.rmi.runtime.Log;
 
+/**
+ * @author : ybyao
+ * @Create : 2019-11-20 17:09
+ */
 @Slf4j
-@Service
 @ChannelHandler.Sharable
-public class LoginResponseHandler extends ChannelInboundHandlerAdapter {
+@Service
+public class ServerExceptionHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -19,15 +23,12 @@ public class LoginResponseHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!(msg instanceof IMMsg.ProtoMsg.Message)) {
-            super.channelRead(ctx, msg);
-            return;
-        }
+        super.channelRead(ctx, msg);
+    }
 
-        IMMsg.ProtoMsg.Message message = (IMMsg.ProtoMsg.Message) msg;
-        if (message.getType() == IMMsg.ProtoMsg.MsgType.LOGIN_RESPONSE) {
-            log.info(message.getLoginResponse().getDesc());
-        }
-
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("ERROR OCCURRED!", cause);
+        ctx.close();
     }
 }

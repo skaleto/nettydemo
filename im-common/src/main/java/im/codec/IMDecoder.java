@@ -3,13 +3,13 @@ package im.codec;
 import im.Constants;
 import im.proto.IMMsg;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class IMDecoder extends ByteToMessageDecoder {
 
 
@@ -57,7 +57,7 @@ public class IMDecoder extends ByteToMessageDecoder {
         }
 
         //反序列化转换成proto POJO对象
-        IMMsg.ProtoMsg msg = IMMsg.ProtoMsg.parseFrom(data);
+        IMMsg.ProtoMsg.Message msg = IMMsg.ProtoMsg.Message.parseFrom(data);
         if (msg != null) {
             out.add(msg);
         }

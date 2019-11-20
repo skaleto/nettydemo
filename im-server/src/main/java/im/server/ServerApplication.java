@@ -13,7 +13,7 @@ import sun.rmi.runtime.Log;
  */
 
 @Slf4j
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "im")
 public class ServerApplication {
 
     public static void main(String[] args) {

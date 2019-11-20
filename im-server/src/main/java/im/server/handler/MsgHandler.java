@@ -1,5 +1,6 @@
 package im.server.handler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
  * @Create : 2019-11-19 10:50
  */
 
+@ChannelHandler.Sharable
 @Service
 public class MsgHandler extends ChannelInboundHandlerAdapter {
 
