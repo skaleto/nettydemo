@@ -9,9 +9,9 @@ import org.springframework.context.ApplicationContext;
 @SpringBootApplication(scanBasePackages = "im")
 public class ClientApplication {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws Exception {
         ApplicationContext context = SpringApplication.run(ClientApplication.class, args);
-        NettyClient client = context.getBean(NettyClient.class);
-        client.connect();
+        ClientController clientController = context.getBean(ClientController.class);
+        clientController.connectAndLogin();
     }
 }

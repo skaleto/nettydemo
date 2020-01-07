@@ -1,8 +1,8 @@
 package im.client.nettyclient;
 
 
-import im.Constants;
 import im.client.inboundhandler.ChatMsgHandler;
+import im.client.inboundhandler.ClientExceptionHandler;
 import im.client.inboundhandler.LoginResponseHandler;
 import im.codec.IMDecoder;
 import im.codec.IMEncoder;
@@ -17,6 +17,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ import javax.annotation.Resource;
 import java.net.InetSocketAddress;
 
 @Slf4j
+@Data
 @Service
 public class NettyClient {
 
@@ -33,11 +35,16 @@ public class NettyClient {
     @Resource
     private LoginResponseHandler loginResponseHandler;
 
+    @Resource
+    private ClientExceptionHandler clientExceptionHandler;
+
+    GenericFutureListener<ChannelFuture> connectListener;
+
     public NettyClient() {
 
     }
 
-    public void connect() throws InterruptedException {
+    public void connect() throws Exception {
         NioEventLoopGroup group = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.remoteAddress(new InetSocketAddress(9999));
@@ -50,42 +57,15 @@ public class NettyClient {
                 ch.pipeline().addLast(new IMDecoder());
                 ch.pipeline().addLast(chatMsgHandler);
                 ch.pipeline().addLast(loginResponseHandler);
+                ch.pipeline().addLast(clientExceptionHandler);
 
             }
         });
-        ChannelFuture connectFuture = bootstrap.connect().addListener((ChannelFuture f) -> {
-            if (f.isSuccess()) {
-                log.info("connect success");
-
-                ChannelFuture future = f.channel().writeAndFlush(buildLoginReq());
-                future.addListener(new GenericFutureListener<Future<? super Void>>() {
-                    @Override
-                    public void operationComplete(Future<? super Void> future)
-                            throws Exception {
-                        // 回调
-                        if (future.isSuccess()) {
-                            log.info("send success");
-                        } else {
-                            log.info("send fail");
-                        }
-                    }
-
-                });
-            }
-        });
+        if (connectListener==null){
+            throw new Exception("监听器未初始化");
+        }
+        ChannelFuture connectFuture = bootstrap.connect().addListener(connectListener);
     }
 
-    private IMMsg.ProtoMsg.Message buildLoginReq() {
-        IMMsg.ProtoMsg.Message.Builder message = IMMsg.ProtoMsg.Message.newBuilder()
-                .setType(IMMsg.ProtoMsg.MsgType.LOGIN_REQUEST);
 
-        IMMsg.ProtoMsg.LoginRequest request = IMMsg.ProtoMsg.LoginRequest.newBuilder()
-                .setDeviceId("device1")
-                .setAppVersion("1.0")
-                .setPlatform("Android")
-                .setUid("12345")
-                .build();
-        message.setLoginRequest(request);
-        return message.build();
-    }
 }

@@ -3,6 +3,8 @@ package im.server.session;
 import io.netty.channel.Channel;
 import lombok.Data;
 
+import java.util.UUID;
+
 
 /**
  * @author : ybyao
@@ -11,10 +13,22 @@ import lombok.Data;
 @Data
 public class ServerSession {
 
+    /**
+     * 会话绑定的消息channel
+     */
     private Channel channel;
+    /**
+     * 会话id，随机生成
+     */
+    private String sessionId;
 
     public ServerSession(Channel channel) {
         this.channel = channel;
+        this.sessionId = generateSessionId();
+    }
+
+    private static String generateSessionId() {
+        return UUID.randomUUID().toString();
     }
 
 }

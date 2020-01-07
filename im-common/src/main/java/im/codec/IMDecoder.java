@@ -1,12 +1,10 @@
 package im.codec;
 
-import im.Constants;
+import im.constants.ProtocolConst;
 import im.proto.IMMsg;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -26,11 +24,11 @@ public class IMDecoder extends ByteToMessageDecoder {
             return;
         }
         //读取并校验魔数
-        if (in.readShort() != Constants.MAGIC) {
+        if (in.readShort() != ProtocolConst.MAGIC) {
             throw new Exception("MAGIC ERROR");
         }
         //读取并校验协议版本
-        if (in.readShort() != Constants.PROTOCOL_VER) {
+        if (in.readShort() != ProtocolConst.PROTOCOL_VER) {
             throw new Exception("PROTOCOL VERSION ERROR");
         }
         //读取数据长度

@@ -1,5 +1,6 @@
 package im.server.handler;
 
+import im.constants.ProtocolConst;
 import im.proto.IMMsg;
 import im.server.session.ServerSession;
 import im.server.session.ServerSessionManager;
@@ -36,17 +37,20 @@ public class LoginHandler extends ChannelInboundHandlerAdapter {
         IMMsg.ProtoMsg.Message message = (IMMsg.ProtoMsg.Message) msg;
         IMMsg.ProtoMsg.MsgType type = message.getType();
         if (type == IMMsg.ProtoMsg.MsgType.LOGIN_REQUEST) {
-            ServerSessionManager.addSession(message.getSessionId(), new ServerSession(ctx.channel()));
-            //
-            ctx.writeAndFlush(buildLoginResponse(0, "success", true));
+            ServerSession serverSession = new ServerSession(ctx.channel());
+            ServerSessionManager.addSession(serverSession.getSessionId(), serverSession);
+
+            ctx.writeAndFlush(buildLoginResponse(message.getSequence(), serverSession.getSessionId(), ProtocolConst.SUCCESS_CODE, ProtocolConst.SUCCESS_MSG, true));
         }
 
 
     }
 
-    private IMMsg.ProtoMsg.Message buildLoginResponse(int code, String desc, boolean result) {
+    private IMMsg.ProtoMsg.Message buildLoginResponse(long sequence, String sessionId, int code, String desc, boolean result) {
         IMMsg.ProtoMsg.Message.Builder message = IMMsg.ProtoMsg.Message.newBuilder()
-                .setType(IMMsg.ProtoMsg.MsgType.LOGIN_RESPONSE);
+                .setType(IMMsg.ProtoMsg.MsgType.LOGIN_RESPONSE)
+                .setSequence(sequence)
+                .setSessionId(sessionId);
 
         IMMsg.ProtoMsg.LoginResponse response = IMMsg.ProtoMsg.LoginResponse.newBuilder()
                 .setCode(code)
