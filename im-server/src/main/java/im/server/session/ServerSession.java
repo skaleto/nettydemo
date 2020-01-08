@@ -1,5 +1,6 @@
 package im.server.session;
 
+import im.bean.UserInfo;
 import io.netty.channel.Channel;
 import lombok.Data;
 
@@ -21,6 +22,8 @@ public class ServerSession {
      * 会话id，随机生成
      */
     private String sessionId;
+
+    private UserInfo user;
 
     public ServerSession(Channel channel) {
         this.channel = channel;

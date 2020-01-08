@@ -37,6 +37,9 @@ public class LoginResponseHandler extends ChannelInboundHandlerAdapter {
             ClientSession session = ctx.channel().attr(ClientSession.SESSION_KEY).get();
             session.setSessionId(message.getSessionId());
             log.info(session.toString());
+
+            //登录成功后，这条pipeline上不再需要loginResponse了
+            ctx.pipeline().remove(LoginResponseHandler.class);
         }
 
     }

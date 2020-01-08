@@ -55,8 +55,8 @@ public class NettyClient {
             protected void initChannel(SocketChannel ch) throws Exception {
                 ch.pipeline().addLast(new IMEncoder());
                 ch.pipeline().addLast(new IMDecoder());
-                ch.pipeline().addLast(chatMsgHandler);
                 ch.pipeline().addLast(loginResponseHandler);
+                ch.pipeline().addLast(chatMsgHandler);
                 ch.pipeline().addLast(clientExceptionHandler);
 
             }

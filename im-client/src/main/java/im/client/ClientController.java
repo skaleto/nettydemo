@@ -2,8 +2,12 @@ package im.client;
 
 
 import ch.qos.logback.core.net.server.Client;
+import im.bean.UserInfo;
+import im.client.helper.CommandHelper;
 import im.client.nettyclient.NettyClient;
 import im.client.session.ClientSession;
+import im.client.session.SessionManager;
+import im.constants.BizConst;
 import im.proto.IMMsg;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -11,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 /**
@@ -23,10 +28,15 @@ public class ClientController {
     @Resource
     private NettyClient nettyClient;
 
-    private ClientSession session;
+    @Resource
+    private CommandHelper commandHelper;
+
+    @Resource
+    private SessionManager sessionManager;
+
 
     /**
-     * 连接并登录
+     * 连接并登录，监听连接成功事件，成功则触发登录
      *
      * @throws Exception
      */
@@ -35,10 +45,9 @@ public class ClientController {
             //假如连接成功，需要创建一个客户端会话，主要用来存放通信的channel
             if (f.isSuccess()) {
                 log.info("connect success");
-
-                session = new ClientSession("-1", f.channel());
-
-                ChannelFuture writeAndFlushFuture = f.channel().writeAndFlush(buildLoginReq());
+                //创建会话
+                sessionManager.createSession(f);
+                ChannelFuture writeAndFlushFuture = f.channel().writeAndFlush(buildLoginReq(sessionManager.getSession().getUserInfo()));
                 writeAndFlushFuture.addListener((future) -> {
                     // 回调
                     if (future.isSuccess()) {
@@ -48,6 +57,9 @@ public class ClientController {
                     }
 
                 });
+
+                //唤醒控制线程，可以开始输入消息了
+                commandHelper.notifyCommandThread();
             }
         };
         nettyClient.setConnectListener(connectListener);
@@ -67,15 +79,16 @@ public class ClientController {
     }
 
 
-    private IMMsg.ProtoMsg.Message buildLoginReq() {
+    private IMMsg.ProtoMsg.Message buildLoginReq(UserInfo user) {
         IMMsg.ProtoMsg.Message.Builder message = IMMsg.ProtoMsg.Message.newBuilder()
                 .setType(IMMsg.ProtoMsg.MsgType.LOGIN_REQUEST);
 
         IMMsg.ProtoMsg.LoginRequest request = IMMsg.ProtoMsg.LoginRequest.newBuilder()
-                .setDeviceId("device1")
-                .setAppVersion("1.0")
-                .setPlatform("Android")
-                .setUid("12345")
+                .setDeviceId(user.getDeviceId())
+                .setAppVersion(user.getAppVersion())
+                .setPlatform(user.getPlatform())
+                .setUid(user.getUid())
+                .setToken(user.getToken())
                 .build();
         message.setLoginRequest(request);
         return message.build();

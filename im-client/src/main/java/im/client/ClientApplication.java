@@ -1,5 +1,6 @@
 package im.client;
 
+import im.client.helper.CommandHelper;
 import im.client.nettyclient.NettyClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +12,8 @@ public class ClientApplication {
 
     public static void main(String[] args) throws Exception {
         ApplicationContext context = SpringApplication.run(ClientApplication.class, args);
-        ClientController clientController = context.getBean(ClientController.class);
-        clientController.connectAndLogin();
+        CommandHelper commandHelper = context.getBean(CommandHelper.class);
+        commandHelper.startCommandReader();
+
     }
 }

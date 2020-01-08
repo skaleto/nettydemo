@@ -1,5 +1,6 @@
 package im.client.session;
 
+import im.bean.UserInfo;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import lombok.Data;
@@ -19,10 +20,20 @@ public class ClientSession {
      */
     private Channel channel;
 
-    public ClientSession(String sessionId, Channel channel) {
+    /**
+     * 用户信息
+     */
+    private UserInfo userInfo;
+
+
+
+    public ClientSession(String sessionId, UserInfo userInfo, Channel channel) {
         this.sessionId = sessionId;
+        this.userInfo = userInfo;
         this.channel = channel;
         //将当前的session对象绑定到channel上
         channel.attr(SESSION_KEY).set(this);
     }
+
+
 }
