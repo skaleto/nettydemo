@@ -1,7 +1,10 @@
 package im.client.inboundhandler;
 
+import im.client.helper.CommandHelper;
 import im.client.nettyclient.NettyClient;
 import im.client.session.ClientSession;
+import im.constants.BizConst;
+import im.constants.ProtocolConst;
 import im.proto.IMMsg;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -11,6 +14,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+
+/**
+ * 登录请求的返回消息处理器
+ */
 @Slf4j
 @Service
 @ChannelHandler.Sharable
@@ -18,6 +25,9 @@ public class LoginResponseHandler extends ChannelInboundHandlerAdapter {
 
     @Resource
     private NettyClient nettyClient;
+
+    @Resource
+    private CommandHelper commandHelper;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -38,8 +48,17 @@ public class LoginResponseHandler extends ChannelInboundHandlerAdapter {
             session.setSessionId(message.getSessionId());
             log.info(session.toString());
 
-            //登录成功后，这条pipeline上不再需要loginResponse了
-            ctx.pipeline().remove(LoginResponseHandler.class);
+            if (ProtocolConst.WRONG_SESSION.equals(session.getSessionId())) {
+                System.out.println("登录失败");
+            }else{
+                System.out.println("登录成功");
+                //登录成功后，这条pipeline上不再需要loginResponse了
+                ctx.pipeline().remove(LoginResponseHandler.class);
+            }
+
+            //唤醒控制线程
+            commandHelper.notifyCommandThread();
+
         }
 
     }

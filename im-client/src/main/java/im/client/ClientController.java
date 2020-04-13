@@ -29,9 +29,6 @@ public class ClientController {
     private NettyClient nettyClient;
 
     @Resource
-    private CommandHelper commandHelper;
-
-    @Resource
     private SessionManager sessionManager;
 
 
@@ -40,26 +37,25 @@ public class ClientController {
      *
      * @throws Exception
      */
-    public void connectAndLogin() throws Exception {
+    public void connectAndLogin(String userId, String token) throws Exception {
         GenericFutureListener<ChannelFuture> connectListener = (ChannelFuture f) -> {
             //假如连接成功，需要创建一个客户端会话，主要用来存放通信的channel
             if (f.isSuccess()) {
                 log.info("connect success");
                 //创建会话
-                sessionManager.createSession(f);
-                ChannelFuture writeAndFlushFuture = f.channel().writeAndFlush(buildLoginReq(sessionManager.getSession().getUserInfo()));
+                sessionManager.createSession(userId, token, f);
+                ChannelFuture writeAndFlushFuture = f.channel()
+                        .writeAndFlush(buildLoginReq(sessionManager.getSession().getUserInfo()));
                 writeAndFlushFuture.addListener((future) -> {
                     // 回调
                     if (future.isSuccess()) {
-                        log.info("send success");
+                        log.info("login msg send success");
                     } else {
-                        log.info("send fail");
+                        log.info("log msg send fail");
                     }
 
                 });
 
-                //唤醒控制线程，可以开始输入消息了
-                commandHelper.notifyCommandThread();
             }
         };
         nettyClient.setConnectListener(connectListener);

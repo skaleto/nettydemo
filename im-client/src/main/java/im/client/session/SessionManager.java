@@ -15,12 +15,12 @@ public class SessionManager {
 
     private ClientSession session;
 
-    public void createSession(ChannelFuture f){
-        UserInfo user = new UserInfo("skaleto", BizConst.token, "ALT-100", "1.0.0000", "Android");
+    public void createSession(String userId, String token, ChannelFuture f) {
+        UserInfo user = new UserInfo(userId, token, "ALT-100", "1.0.0000", "Android");
         session = new ClientSession("-1", user, f.channel());
     }
 
-    public ClientSession getSession(){
+    public ClientSession getSession() {
         return session;
     }
 }

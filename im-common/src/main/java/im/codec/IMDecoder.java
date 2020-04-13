@@ -46,10 +46,11 @@ public class IMDecoder extends ByteToMessageDecoder {
         //hasArray用来判断是否使用堆内存
         if (in.hasArray()) {
             //如果有array存放则说明使用的是堆内存，array中存放的即真实数据
-            //这里做了一次slice浅复制
+            //这里做了一次slice浅复制 TODO 为什么要做浅复制
             ByteBuf buf = in.slice();
             data = buf.array();
         } else {
+            //如果没有array存放，说明使用的是直接内存，需要用readBytes来读取
             data = new byte[contentLength];
             in.readBytes(data);
         }

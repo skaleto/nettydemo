@@ -50,13 +50,15 @@ public class LoginHandler extends ChannelInboundHandlerAdapter {
         IMMsg.ProtoMsg.LoginRequest req = message.getLoginRequest();
         UserInfo userInfo = new UserInfo(req.getUid(), req.getToken(), req.getDeviceId(), req.getAppVersion(), req.getPlatform());
 
-        if (!authCheck(userInfo)) {
+        if (!authCheck(userInfo)||ServerSessionManager.getSessionList(req.getUid()) != null) {
+            log.warn("该用户验证失败或已登录！");
             //发送登录失败的报文
             ctx.writeAndFlush(buildLoginResponse(message.getSequence(), "-1", ProtocolConst.LOGIN_FAIL_CODE, ProtocolConst.LOGIN_FAIL_MSG, false));
+            return;
         }
 
         ServerSession serverSession = new ServerSession(ctx.channel());
-        ServerSessionManager.addSession(serverSession.getSessionId(), serverSession);
+        ServerSessionManager.addSession(userInfo.getUid(), serverSession);
         ctx.writeAndFlush(buildLoginResponse(message.getSequence(), serverSession.getSessionId(), ProtocolConst.SUCCESS_CODE, ProtocolConst.SUCCESS_MSG, true));
 
         //通道建立成功后，这条线上不再需要登录处理器了

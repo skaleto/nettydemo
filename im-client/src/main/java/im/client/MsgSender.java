@@ -24,7 +24,9 @@ public class MsgSender {
         if (sessionManager.getSession() == null) {
             return;
         }
-        ChannelFuture future = sessionManager.getSession().getChannel().writeAndFlush(buildMsgReq(msg));
+        String[] array = msg.split(":");
+        ChannelFuture future = sessionManager.getSession().getChannel()
+                .writeAndFlush(buildMsgReq(array[0], array[1]));
         future.addListener((f) -> {
             if (f.isSuccess()) {
                 log.info("send msg success");
@@ -35,14 +37,14 @@ public class MsgSender {
 
     }
 
-    private IMMsg.ProtoMsg.Message buildMsgReq(String msg) {
+    private IMMsg.ProtoMsg.Message buildMsgReq(String toClient, String msg) {
         IMMsg.ProtoMsg.Message.Builder message = IMMsg.ProtoMsg.Message.newBuilder()
                 .setType(IMMsg.ProtoMsg.MsgType.MESSAGE_REQUEST);
 
         IMMsg.ProtoMsg.MessageRequest request = IMMsg.ProtoMsg.MessageRequest.newBuilder()
                 .setContent(msg)
                 .setFromClient("127.0.0.1")
-                .setToClient("127.0.0.2")
+                .setToClient(toClient)
                 .setMsgId(1)
                 .build();
         message.setMessageRequest(request);
